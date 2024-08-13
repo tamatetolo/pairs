@@ -1,0 +1,19 @@
+# Ignore generated files.
+build/
+dist/
+node_modules/
+yarn-error.log
+package-lock.json
+.next/
+
+# IDE
+.idea/
+.vscode/
+
+
+# Mac system files.
+.DS_Store
+.next/**
+
+
+.env.local

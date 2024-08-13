@@ -1,0 +1,108 @@
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+}
+
+#__next {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+@media (prefers-color-scheme: light) {
+  html {
+    color-scheme: light;
+  }
+  body {
+    background: #eeeeee;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card {
+  text-align: center;
+  height: 18vh;
+  font-size: 32px;
+  font-weight: bold;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-self: center;
+  transform-style: preserve-3d;
+  transition: all 0.2s;
+  user-select: none;
+  cursor: pointer;
+}
+.card.gameover {
+  pointer-events: none;
+}
+.card-0 {
+  transform: rotateY(0deg);
+}
+.card.active {
+  transform: rotateY(180deg);
+}
+.card.matched .card-front {
+  background-color: lightgoldenrodyellow;
+  color: white;
+  outline: 0.25rem solid lightgoldenrodyellow;
+}
+.card-front,
+.card-back {
+  border-radius: 10px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  backface-visibility: hidden;
+  height: 100%;
+}
+.card-front {
+  transform: rotateY(180deg);
+  background-color: #ffffff;
+  line-height: 70px;
+  font-size: 4rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-clip: padding-box;
+  outline: 0.25rem solid #ffffff;
+  border: 2px solid rgba(166, 190, 255, 0.5);
+  z-index: 2;
+  box-sizing: border-box;
+}
+
+.card-back {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='32' viewBox='0 0 16 32'%3E%3Cg fill='%23215dff' fill-opacity='0.4'%3E%3Cpath fill-rule='evenodd' d='M0 24h4v2H0v-2zm0 4h6v2H0v-2zm0-8h2v2H0v-2zM0 0h4v2H0V0zm0 4h2v2H0V4zm16 20h-6v2h6v-2zm0 4H8v2h8v-2zm0-8h-4v2h4v-2zm0-20h-6v2h6V0zm0 4h-4v2h4V4zm-2 12h2v2h-2v-2zm0-8h2v2h-2V8zM2 8h10v2H2V8zm0 8h10v2H2v-2zm-2-4h14v2H0v-2zm4-8h6v2H4V4zm0 16h6v2H4v-2zM6 0h2v2H6V0zm0 24h2v2H6v-2z'/%3E%3C/g%3E%3C/svg%3E");
+  background-color: #ffffff;
+  transform: rotateY(0);
+  z-index: 1;
+  outline: 0.25rem solid #ffffff;
+  border: 2px #ffffff solid;
+}
