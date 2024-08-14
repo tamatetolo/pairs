@@ -3,6 +3,8 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Chip from '@mui/material/Chip';
 import Badge from '@mui/material/Badge';
+import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
 import GameOverModal from '../client/components/modals/Gameover';
 
 interface Card {
@@ -17,9 +19,12 @@ export default function Home() {
   const [boardData, setBoardData] = useState([]);
   const [flippedCards, setFlippedCards] = useState([]);
   const [matchedCards, setMatchedCards] = useState([]);
-  const [moves, setMoves] = useState(0);
+  const [level, setLevel] = useState(1);
+  const [score, setScore] = useState(0);
+  const [timer, setTimer] = useState(99);
+  const [moves, setMoves] = useState(40);
   const [combo, setCombo] = useState(0);
-  const [comboHistory, setComboHistory] = useState([]);
+  const [comboHistory, setComboHistory] = useState([4]);
   const [gameOver, setGameOver] = useState(false);
 
   const pairsFoundCount = useMemo(() => {
@@ -81,6 +86,8 @@ export default function Home() {
         const secondIdx = i;
         if (boardData[firstIdx] == boardData[secondIdx]) {
           setCombo(combo + 1);
+          const multiplier = combo > 0 ? combo : 1;
+          setScore((score + 10) * multiplier);
           setMatchedCards((prev) => [...prev, firstIdx, secondIdx]);
         } else {
           // reset the combo
@@ -112,27 +119,89 @@ export default function Home() {
   }, [moves]);
 
   useEffect(() => {
+    if (timer > 0) {
+      const timerId = setInterval(() => {
+        setTimer((prevSeconds) => prevSeconds - 1);
+      }, 1000);
+
+      // Cleanup function to clear the interval when the component unmounts or when seconds changes
+      return () => clearInterval(timerId);
+    }
+  }, [timer]);
+
+  useEffect(() => {
     // useHook initialize
     initialize();
   }, []);
 
   return (
     <Grid container mx={1} width='100%'>
-      <Box display='flex' justifyContent='flex-end' width='100%' mr={2}>
-        <Box mr={1}>
-          <Badge badgeContent={combo > 1 ? combo : 0} color='error'>
-            <Chip label={`Combo`} variant='outlined' color='error' />
-          </Badge>
-        </Box>
-        <Box mr={1}>
-          <Badge badgeContent={moves} color='info'>
-            <Chip label={`Flips`} variant='outlined' color='info' />
-          </Badge>
-        </Box>
+      <Box display='flex' justifyContent='center' mx='auto' width='90%'>
+        <Box
+          display='flex'
+          justifyContent='space-between'
+          alignItems='center'
+          width='100%'
+        >
+          <Box width='33%'>
+            <Chip
+              sx={{ marginRight: 1 }}
+              label={`Stage ${level}`}
+              variant='outlined'
+              color='info'
+            />
+            <Chip label={`Score ${score}`} variant='outlined' color='info' />
+          </Box>
+          <Box position='relative'>
+            <Box position='relative'>
+              <CircularProgress
+                variant='determinate'
+                value={100}
+                size='4rem'
+                sx={{ position: 'absolute', color: 'darkgray' }}
+              />
+              <CircularProgress
+                size='4rem'
+                variant='determinate'
+                value={timer}
+              />
+            </Box>
+            <Box
+              sx={{
+                top: 0,
+                left: 0,
+                bottom: 0,
+                right: 0,
+                position: 'absolute',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Typography variant='h5' component='div' color='primary'>
+                {timer}
+              </Typography>
+            </Box>
+          </Box>
 
-        <Badge badgeContent={pairsFoundCount} color='success'>
-          <Chip label={`Pairs`} variant='outlined' color='success' />
-        </Badge>
+          <Box
+            width='33%'
+            display='flex'
+            alignItems='center'
+            justifyContent='flex-end'
+          >
+            <Box mr={1}>
+              <Badge badgeContent={combo > 1 ? combo : 0} color='primary'>
+                <Chip label={`Combo`} variant='outlined' color='info' />
+              </Badge>
+            </Box>
+            <Box mr={1}>
+              <Badge badgeContent={moves} color='warning'>
+                <Chip label={`Flips`} variant='outlined' color='info' />
+              </Badge>
+            </Box>
+          </Box>
+        </Box>
       </Box>
 
       <Grid item container maxWidth='sm' mt={1}>
@@ -154,6 +223,7 @@ export default function Home() {
         })}
       </Grid>
       <GameOverModal
+        level={level}
         open={gameOver}
         onClose={initialize}
         onRestart={initialize}

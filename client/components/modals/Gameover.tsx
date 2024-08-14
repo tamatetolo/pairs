@@ -8,6 +8,7 @@ import React from 'react';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 
 interface GameOverModalProps {
+  level: number;
   open: boolean;
   onClose: () => void;
   onRestart: () => void;
@@ -16,22 +17,18 @@ interface GameOverModalProps {
 }
 
 export default function GameOverModal(props: GameOverModalProps) {
-  const { open, onClose, onRestart, moves, comboHistory } = props;
+  const { level, open, onClose, onRestart, moves, comboHistory } = props;
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>You did it!</DialogTitle>
+      <DialogTitle>Level {level} Complete!</DialogTitle>
       <DialogContent>
         <Typography variant='body1'>
           Congratulations! You completed the game in {moves} moves.
         </Typography>
-        <Typography variant='body2'>
+
+        <Typography variant='body1'>
           Your best combo was {Math.max(...comboHistory)}.
-        </Typography>
-        <Typography variant='body2'>
-          {comboHistory.map((combo, index) => (
-            <p>{combo}</p>
-          ))}
         </Typography>
       </DialogContent>
       <DialogActions>
