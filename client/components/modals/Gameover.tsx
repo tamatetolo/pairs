@@ -1,41 +1,49 @@
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import Typography from '@mui/material/Typography';
 import React from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Typography,
-} from '@mui/material';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 
 interface GameOverModalProps {
   open: boolean;
   onClose: () => void;
   onRestart: () => void;
   moves: number;
+  comboHistory: number[];
 }
 
 export default function GameOverModal(props: GameOverModalProps) {
-  const { open, onClose, onRestart, moves } = props;
+  const { open, onClose, onRestart, moves, comboHistory } = props;
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      aria-labelledby='game-over-dialog-title'
-      aria-describedby='game-over-dialog-description'
-    >
-      <DialogTitle id='game-over-dialog-title'>Game Over</DialogTitle>
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>You did it!</DialogTitle>
       <DialogContent>
-        <Typography id='game-over-dialog-description' variant='body1'>
+        <Typography variant='body1'>
           Congratulations! You completed the game in {moves} moves.
+        </Typography>
+        <Typography variant='body2'>
+          Your best combo was {Math.max(...comboHistory)}.
+        </Typography>
+        <Typography variant='body2'>
+          {comboHistory.map((combo, index) => (
+            <p>{combo}</p>
+          ))}
         </Typography>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onRestart} color='primary' variant='contained'>
+        <Button
+          endIcon={<RestartAltIcon />}
+          onClick={onRestart}
+          color='primary'
+          variant='contained'
+        >
           Play Again
         </Button>
-        <Button onClick={onClose} color='secondary' variant='outlined'>
+        <Button onClick={onClose} color='inherit' variant='outlined'>
           Close
         </Button>
       </DialogActions>

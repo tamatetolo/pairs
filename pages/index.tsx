@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from 'react';
-import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Chip from '@mui/material/Chip';
@@ -19,6 +18,8 @@ export default function Home() {
   const [flippedCards, setFlippedCards] = useState([]);
   const [matchedCards, setMatchedCards] = useState([]);
   const [moves, setMoves] = useState(0);
+  const [combo, setCombo] = useState(0);
+  const [comboHistory, setComboHistory] = useState([]);
   const [gameOver, setGameOver] = useState(false);
 
   const pairsFoundCount = useMemo(() => {
@@ -69,6 +70,7 @@ export default function Home() {
     setFlippedCards([]);
     setMatchedCards([]);
     setMoves(0);
+    setCombo(0);
   };
 
   const updateActiveCards = (i) => {
@@ -78,22 +80,33 @@ export default function Home() {
         const firstIdx = flippedCards[0];
         const secondIdx = i;
         if (boardData[firstIdx] == boardData[secondIdx]) {
+          setCombo(combo + 1);
           setMatchedCards((prev) => [...prev, firstIdx, secondIdx]);
+        } else {
+          // reset the combo
+          if (combo > 1) {
+            setComboHistory([...comboHistory, combo]);
+          }
+          setCombo(0);
         }
         setFlippedCards([...flippedCards, i]);
-      } else if (flippedCards.length == 2) {
+      } else if (flippedCards.length === 2) {
         setFlippedCards([i]);
       } else {
         setFlippedCards([...flippedCards, i]);
       }
-
       setMoves((v) => v + 1);
     }
   };
 
   useEffect(() => {
     // useHook check
-    if (matchedCards.length == 16) {
+    if (matchedCards.length === 16) {
+      if (combo > 1) {
+        // last move of the game
+        setComboHistory([...comboHistory, combo]);
+        setCombo(0);
+      }
       setGameOver(true);
     }
   }, [moves]);
@@ -105,7 +118,12 @@ export default function Home() {
 
   return (
     <Grid container mx={1} width='100%'>
-      <Box display='flex' justifyContent='flex-end' width='100%'>
+      <Box display='flex' justifyContent='flex-end' width='100%' mr={2}>
+        <Box mr={1}>
+          <Badge badgeContent={combo > 1 ? combo : 0} color='error'>
+            <Chip label={`Combo`} variant='outlined' color='error' />
+          </Badge>
+        </Box>
         <Box mr={1}>
           <Badge badgeContent={moves} color='info'>
             <Chip label={`Flips`} variant='outlined' color='info' />
@@ -140,6 +158,7 @@ export default function Home() {
         onClose={initialize}
         onRestart={initialize}
         moves={moves}
+        comboHistory={comboHistory}
       />
     </Grid>
   );
