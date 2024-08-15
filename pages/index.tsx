@@ -6,7 +6,6 @@ import Badge from '@mui/material/Badge';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 import LevelCompleteModal from '../client/components/modals/LevelComplete';
-import { on } from 'events';
 import GameOverModal from '../client/components/modals/Gameover';
 
 interface Card {
@@ -18,13 +17,14 @@ interface Card {
 }
 
 export default function Home() {
+  // move this to context
   const [boardData, setBoardData] = useState([]);
   const [flippedCards, setFlippedCards] = useState([]);
   const [matchedCards, setMatchedCards] = useState([]);
   const [level, setLevel] = useState(1);
-  const [score, setScore] = useState(0);
   const [timer, setTimer] = useState(99);
-  const [moves, setMoves] = useState(40);
+  const [score, setScore] = useState(0);
+  const [moves, setMoves] = useState(0);
   const [combo, setCombo] = useState(0);
   const [comboHistory, setComboHistory] = useState([]);
   const [levelComplete, setLevelComplete] = useState(false);
@@ -80,6 +80,10 @@ export default function Home() {
   const onLevelComplete = async () => {
     // Part 2: Next level setup
     initialize();
+
+    // reduce timer based on level, remove 5 seconds per level
+    let timer = 99;
+    setTimer(timer - 5 * level);
     setLevel(level + 1);
   };
 
@@ -98,7 +102,7 @@ export default function Home() {
         if (boardData[firstIdx] == boardData[secondIdx]) {
           setCombo(combo + 1);
           const multiplier = combo > 0 ? combo : 1;
-          setScore((score + 10) * multiplier);
+          setScore(score + 10 * multiplier);
           setMatchedCards((prev) => [...prev, firstIdx, secondIdx]);
         } else {
           // add to combo history then reset the combo counter
@@ -123,14 +127,14 @@ export default function Home() {
       if (combo > 1) {
         // last move of the game
         setComboHistory([...comboHistory, combo]);
-        setCombo(0);
       }
       setLevelComplete(true);
     }
   }, [moves]);
 
   useEffect(() => {
-    if (timer > 0 && !levelComplete) {
+    if (levelComplete) return;
+    if (timer > 0) {
       const timerId = setInterval(() => {
         setTimer((prevSeconds) => prevSeconds - 1);
       }, 1000);
@@ -166,9 +170,10 @@ export default function Home() {
             />
             <Chip
               size='small'
-              label={`Score ${score}`}
+              label={score}
               variant='outlined'
               color='info'
+              sx={{ width: '5rem' }}
             />
           </Box>
           <Box position='relative'>
@@ -182,6 +187,7 @@ export default function Home() {
               <CircularProgress
                 size='4rem'
                 variant='determinate'
+                color='info'
                 value={timer}
               />
             </Box>
@@ -197,7 +203,7 @@ export default function Home() {
                 justifyContent: 'center',
               }}
             >
-              <Typography variant='h5' component='div' color='primary'>
+              <Typography variant='h5' sx={{ color: '#0288d1' }}>
                 {timer}
               </Typography>
             </Box>
@@ -252,6 +258,7 @@ export default function Home() {
         })}
       </Grid>
       <LevelCompleteModal
+        setScore={setScore}
         score={score}
         timer={timer}
         level={level}
