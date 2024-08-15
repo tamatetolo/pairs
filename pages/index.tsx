@@ -5,6 +5,8 @@ import Chip from '@mui/material/Chip';
 import Badge from '@mui/material/Badge';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
+import LevelCompleteModal from '../client/components/modals/LevelComplete';
+import { on } from 'events';
 import GameOverModal from '../client/components/modals/Gameover';
 
 interface Card {
@@ -24,21 +26,16 @@ export default function Home() {
   const [timer, setTimer] = useState(99);
   const [moves, setMoves] = useState(40);
   const [combo, setCombo] = useState(0);
-  const [comboHistory, setComboHistory] = useState([4]);
-  const [gameOver, setGameOver] = useState(false);
-
-  const pairsFoundCount = useMemo(() => {
-    if (matchedCards.length >= 2) {
-      return matchedCards.length / 2;
-    } else return 0;
-  }, [matchedCards]);
+  const [comboHistory, setComboHistory] = useState([]);
+  const [levelComplete, setLevelComplete] = useState(false);
+  const [gameover, setGameover] = useState(false);
 
   const renderCard = (data: Card, index: number) => {
     const classes = [
       'card',
       data.flipped || data.matched ? 'active' : '',
       data.matched ? 'matched' : '',
-      gameOver ? 'gameover' : '',
+      levelComplete ? 'gameover' : '',
     ];
     return (
       <Box
@@ -71,11 +68,25 @@ export default function Home() {
   const initialize = async () => {
     // Part 1: Game Setup
     shuffle();
-    setGameOver(false);
+    setLevelComplete(false);
+    setGameover(false);
     setFlippedCards([]);
     setMatchedCards([]);
+    setTimer(99);
     setMoves(0);
     setCombo(0);
+  };
+
+  const onLevelComplete = async () => {
+    // Part 2: Next level setup
+    initialize();
+    setLevel(level + 1);
+  };
+
+  const onGameover = async () => {
+    // Part 3: Gameover setup
+    initialize();
+    setLevel(1);
   };
 
   const updateActiveCards = (i) => {
@@ -90,7 +101,7 @@ export default function Home() {
           setScore((score + 10) * multiplier);
           setMatchedCards((prev) => [...prev, firstIdx, secondIdx]);
         } else {
-          // reset the combo
+          // add to combo history then reset the combo counter
           if (combo > 1) {
             setComboHistory([...comboHistory, combo]);
           }
@@ -114,18 +125,20 @@ export default function Home() {
         setComboHistory([...comboHistory, combo]);
         setCombo(0);
       }
-      setGameOver(true);
+      setLevelComplete(true);
     }
   }, [moves]);
 
   useEffect(() => {
-    if (timer > 0) {
+    if (timer > 0 && !levelComplete) {
       const timerId = setInterval(() => {
         setTimer((prevSeconds) => prevSeconds - 1);
       }, 1000);
 
       // Cleanup function to clear the interval when the component unmounts or when seconds changes
       return () => clearInterval(timerId);
+    } else {
+      setGameover(true);
     }
   }, [timer]);
 
@@ -148,9 +161,15 @@ export default function Home() {
               sx={{ marginRight: 1 }}
               label={`Stage ${level}`}
               variant='outlined'
+              size='small'
               color='info'
             />
-            <Chip label={`Score ${score}`} variant='outlined' color='info' />
+            <Chip
+              size='small'
+              label={`Score ${score}`}
+              variant='outlined'
+              color='info'
+            />
           </Box>
           <Box position='relative'>
             <Box position='relative'>
@@ -192,12 +211,22 @@ export default function Home() {
           >
             <Box mr={1}>
               <Badge badgeContent={combo > 1 ? combo : 0} color='primary'>
-                <Chip label={`Combo`} variant='outlined' color='info' />
+                <Chip
+                  size='small'
+                  label='Combo'
+                  variant='outlined'
+                  color='info'
+                />
               </Badge>
             </Box>
             <Box mr={1}>
               <Badge badgeContent={moves} color='warning'>
-                <Chip label={`Flips`} variant='outlined' color='info' />
+                <Chip
+                  size='small'
+                  label='Flips'
+                  variant='outlined'
+                  color='info'
+                />
               </Badge>
             </Box>
           </Box>
@@ -222,13 +251,21 @@ export default function Home() {
           );
         })}
       </Grid>
-      <GameOverModal
+      <LevelCompleteModal
+        score={score}
+        timer={timer}
         level={level}
-        open={gameOver}
+        open={levelComplete}
         onClose={initialize}
-        onRestart={initialize}
+        onContinue={onLevelComplete}
         moves={moves}
         comboHistory={comboHistory}
+      />
+      <GameOverModal
+        score={score}
+        open={gameover}
+        onClose={onGameover}
+        onSubmitScore={() => {}}
       />
     </Grid>
   );

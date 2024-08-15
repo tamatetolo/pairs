@@ -4,44 +4,44 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
 import React from 'react';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 
 interface GameOverModalProps {
-  level: number;
+  score: number;
   open: boolean;
   onClose: () => void;
-  onRestart: () => void;
-  moves: number;
-  comboHistory: number[];
+  onSubmitScore: () => void;
 }
 
 export default function GameOverModal(props: GameOverModalProps) {
-  const { level, open, onClose, onRestart, moves, comboHistory } = props;
+  const { score, open, onClose, onSubmitScore } = props;
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Level {level} Complete!</DialogTitle>
+      <DialogTitle>Gameover</DialogTitle>
       <DialogContent>
-        <Typography variant='body1'>
-          Congratulations! You completed the game in {moves} moves.
+        <Typography variant='body1' mb={1}>
+          You ran out of time..
         </Typography>
 
-        <Typography variant='body1'>
-          Your best combo was {Math.max(...comboHistory)}.
-        </Typography>
+        <Box display='flex' justifyContent='space-between' mt={1}>
+          <Typography variant='h6'>Score</Typography>
+          <Typography variant='h6'>{score}pts</Typography>
+        </Box>
       </DialogContent>
       <DialogActions>
         <Button
           endIcon={<RestartAltIcon />}
-          onClick={onRestart}
+          onClick={onClose}
           color='primary'
           variant='contained'
         >
-          Play Again
+          Play again?
         </Button>
-        <Button onClick={onClose} color='inherit' variant='outlined'>
-          Close
+        <Button onClick={onSubmitScore} color='inherit' variant='outlined'>
+          Submit score
         </Button>
       </DialogActions>
     </Dialog>
