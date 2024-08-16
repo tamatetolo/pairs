@@ -5,7 +5,6 @@ import { Random } from 'unsplash-js/dist/methods/photos/types';
 export async function getCats(data: GetCatsRequest): Promise<GetCatsResponse> {
   const call = await unsplahApi.photos.getRandom({ count: data.count });
 
-  console.debug({ call });
   if (call.errors) {
   }
 

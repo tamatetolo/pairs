@@ -7,6 +7,7 @@ import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 import LevelCompleteModal from '../client/components/modals/LevelComplete';
 import GameOverModal from '../client/components/modals/Gameover';
+import StartModal from '../client/components/modals/Start';
 
 interface Card {
   index: number;
@@ -27,6 +28,7 @@ export default function Home() {
   const [moves, setMoves] = useState(0);
   const [combo, setCombo] = useState(0);
   const [comboHistory, setComboHistory] = useState([]);
+  const [gameStarted, setGameStarted] = useState(false);
   const [levelComplete, setLevelComplete] = useState(false);
   const [gameover, setGameover] = useState(false);
 
@@ -67,6 +69,7 @@ export default function Home() {
 
   const initialize = async () => {
     // Part 1: Game Setup
+    setGameStarted(true);
     shuffle();
     setLevelComplete(false);
     setGameover(false);
@@ -101,7 +104,7 @@ export default function Home() {
         const secondIdx = i;
         if (boardData[firstIdx] == boardData[secondIdx]) {
           setCombo(combo + 1);
-          const multiplier = combo > 0 ? combo : 1;
+          const multiplier = combo + 1;
           setScore(score + 10 * multiplier);
           setMatchedCards((prev) => [...prev, firstIdx, secondIdx]);
         } else {
@@ -133,7 +136,7 @@ export default function Home() {
   }, [moves]);
 
   useEffect(() => {
-    if (levelComplete) return;
+    if (levelComplete || !gameStarted) return;
     if (timer > 0) {
       const timerId = setInterval(() => {
         setTimer((prevSeconds) => prevSeconds - 1);
@@ -146,117 +149,118 @@ export default function Home() {
     }
   }, [timer]);
 
-  useEffect(() => {
-    // useHook initialize
-    initialize();
-  }, []);
-
   return (
-    <Grid container mx={1} width='100%'>
-      <Box display='flex' justifyContent='center' mx='auto' width='90%'>
-        <Box
-          display='flex'
-          justifyContent='space-between'
-          alignItems='center'
-          width='100%'
-        >
-          <Box width='33%'>
-            <Chip
-              sx={{ marginRight: 1 }}
-              label={`Stage ${level}`}
-              variant='outlined'
-              size='small'
-              color='info'
-            />
-            <Chip
-              size='small'
-              label={score}
-              variant='outlined'
-              color='info'
-              sx={{ width: '5rem' }}
-            />
-          </Box>
-          <Box position='relative'>
-            <Box position='relative'>
-              <CircularProgress
-                variant='determinate'
-                value={100}
-                size='4rem'
-                sx={{ position: 'absolute', color: 'darkgray' }}
-              />
-              <CircularProgress
-                size='4rem'
-                variant='determinate'
-                color='info'
-                value={timer}
-              />
-            </Box>
+    <>
+      {gameStarted && (
+        <Grid container mx={1} width='100%'>
+          <Box display='flex' justifyContent='center' mx='auto' width='90%'>
             <Box
-              sx={{
-                top: 0,
-                left: 0,
-                bottom: 0,
-                right: 0,
-                position: 'absolute',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              display='flex'
+              justifyContent='space-between'
+              alignItems='center'
+              width='100%'
             >
-              <Typography variant='h5' sx={{ color: '#0288d1' }}>
-                {timer}
-              </Typography>
+              <Box width='33%'>
+                <Chip
+                  sx={{ marginRight: 1 }}
+                  label={`Stage ${level}`}
+                  variant='outlined'
+                  size='small'
+                  color='info'
+                />
+                <Chip
+                  size='small'
+                  label={score}
+                  variant='outlined'
+                  color='info'
+                  sx={{ width: '5rem' }}
+                />
+              </Box>
+              <Box position='relative'>
+                <Box position='relative'>
+                  <CircularProgress
+                    variant='determinate'
+                    value={100}
+                    size='4rem'
+                    sx={{ position: 'absolute', color: 'darkgray' }}
+                  />
+                  <CircularProgress
+                    size='4rem'
+                    variant='determinate'
+                    color='info'
+                    value={timer}
+                  />
+                </Box>
+                <Box
+                  sx={{
+                    top: 0,
+                    left: 0,
+                    bottom: 0,
+                    right: 0,
+                    position: 'absolute',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Typography variant='h5' sx={{ color: '#0288d1' }}>
+                    {timer}
+                  </Typography>
+                </Box>
+              </Box>
+
+              <Box
+                width='33%'
+                display='flex'
+                alignItems='center'
+                justifyContent='flex-end'
+              >
+                <Box mr={1}>
+                  <Badge badgeContent={combo > 1 ? combo : 0} color='primary'>
+                    <Chip
+                      size='small'
+                      label='Combo'
+                      variant='outlined'
+                      color='info'
+                    />
+                  </Badge>
+                </Box>
+                <Box mr={1}>
+                  <Badge badgeContent={moves} color='warning'>
+                    <Chip
+                      size='small'
+                      label='Flips'
+                      variant='outlined'
+                      color='info'
+                    />
+                  </Badge>
+                </Box>
+              </Box>
             </Box>
           </Box>
 
-          <Box
-            width='33%'
-            display='flex'
-            alignItems='center'
-            justifyContent='flex-end'
-          >
-            <Box mr={1}>
-              <Badge badgeContent={combo > 1 ? combo : 0} color='primary'>
-                <Chip
-                  size='small'
-                  label='Combo'
-                  variant='outlined'
-                  color='info'
-                />
-              </Badge>
-            </Box>
-            <Box mr={1}>
-              <Badge badgeContent={moves} color='warning'>
-                <Chip
-                  size='small'
-                  label='Flips'
-                  variant='outlined'
-                  color='info'
-                />
-              </Badge>
-            </Box>
-          </Box>
-        </Box>
-      </Box>
+          <Grid item container maxWidth='sm' mt={1}>
+            {boardData.map((data, i) => {
+              const flipped = flippedCards.includes(i) ? true : false;
+              const matched = matchedCards.includes(i) ? true : false;
+              const card = {
+                flipped,
+                matched,
+                text: data,
+                index: i,
+              };
 
-      <Grid item container maxWidth='sm' mt={1}>
-        {boardData.map((data, i) => {
-          const flipped = flippedCards.includes(i) ? true : false;
-          const matched = matchedCards.includes(i) ? true : false;
-          const card = {
-            flipped,
-            matched,
-            text: data,
-            index: i,
-          };
+              return (
+                <Grid xs={3} py={1} px={1}>
+                  {renderCard(card, i)}
+                </Grid>
+              );
+            })}
+          </Grid>
+        </Grid>
+      )}
 
-          return (
-            <Grid xs={3} py={1} px={1}>
-              {renderCard(card, i)}
-            </Grid>
-          );
-        })}
-      </Grid>
+      <StartModal open={!gameStarted} onStart={initialize} />
       <LevelCompleteModal
         setScore={setScore}
         score={score}
@@ -274,6 +278,6 @@ export default function Home() {
         onClose={onGameover}
         onSubmitScore={() => {}}
       />
-    </Grid>
+    </>
   );
 }
