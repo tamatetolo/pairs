@@ -147,7 +147,7 @@ export default function Home() {
     } else {
       setGameover(true);
     }
-  }, [timer]);
+  }, [timer, gameStarted]);
 
   return (
     <>
